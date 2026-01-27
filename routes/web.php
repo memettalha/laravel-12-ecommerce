@@ -13,6 +13,14 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// Ürün Detay Rotası 
+Route::get('/product/{id}', function ($id) {
+    $product = Product::findOrFail($id); // Ürünü bul, bulamazsan 404 ver
+    return Inertia::render('ProductDetail', [
+        'product' => $product
+    ]);
+})->name('product.detail');
+
 // Dashboard Rotası (Giriş yapanlar için)
 Route::get('dashboard', function () {
     return Inertia::render('dashboard');

@@ -15,6 +15,11 @@ interface Props {
     products: Product[];
 }
 
+// Sepetteki her bir ürünün tipini tanımlayalım
+interface CartItem extends Product {
+    quantity: number;
+}
+
 export default function Welcome({ products } : Props ) {
     const [notification, setNotification] = useState<string | null>(null);
     const [cartCount, setCartCount] = useState<number>(0);
