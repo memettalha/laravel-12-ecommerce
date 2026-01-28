@@ -75,11 +75,13 @@ export default function Welcome({ products } : Props ) {
                             <div key={product.id} className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                                 {/* Ürün Görseli */}
                                 <div className="aspect-square overflow-hidden bg-gray-100">
-                                    <img 
-                                        src={product.image || 'https://via.placeholder.com/400'} 
-                                        alt={product.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    />
+                                    <Link href = {`/product/${product.id}`}>
+                                        <img 
+                                            src={product.image || 'https://via.placeholder.com/400'} 
+                                            alt={product.name}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        />
+                                    </Link>
                                 </div>
                                 
                                 {/* Ürün Detayları */}
@@ -88,7 +90,9 @@ export default function Welcome({ products } : Props ) {
                                         <span className="text-xs font-bold text-indigo-500 uppercase tracking-widest">{product.category}</span>
                                         <span className="text-sm text-green-600 font-semibold">Stok: {product.stock}</span>
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                                    <Link href={`/product/${product.id}`}>
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                                    </Link>
                                     <p className="text-gray-500 text-sm line-clamp-2 mb-4">
                                         {product.description}
                                     </p>
