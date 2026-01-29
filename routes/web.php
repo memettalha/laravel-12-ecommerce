@@ -29,4 +29,11 @@ Route::get('dashboard', function () {
 //Sepete eklemek için 
 Route::post('/cart/add',[App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
 
+// Sepet Yönetimi: Adet güncelleme (artırma/azaltma) ve ürün silme işlemleri
+Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+
+use App\Http\Controllers\CartController;
+
+
 require __DIR__.'/settings.php';
