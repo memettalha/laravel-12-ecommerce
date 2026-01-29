@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface Product {
@@ -12,33 +12,44 @@ interface Product {
 }
 
 export default function ProductDetail({ product }: { product: Product }) {
-    //Sepet durumu kontrol eden state
+    const { props } = usePage();
     const [isAdded, setIsAdded] = useState(false);
+
     const handleAddtoCart = () => {
-        setIsAdded(true);
+        // DİKKAT: Adresi tam olarak '/cart/add' yaptık
+        router.post('/cart/add', { id: product.id }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsAdded(true);
+                // 2 saniye sonra butonu eski haline çevir
+                setTimeout(() => {
+                    setIsAdded(false);
+                }, 2000);
+            },
+            onError: (errors) => {
+                console.error("Sepete eklenirken hata oluştu:", errors);
+            }
+        });
     };
-    console.log(`${product.name} sepete eklendi!`);
-    // 2 saniye sonra butonu eski haline çevir
-    setTimeout(() => {
-        setIsAdded(false);
-    }, 2000);
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Head title={`${product.name} - Detay`} />
             
-            {/* Navigasyon */}
             <nav className="bg-white border-b border-gray-100 p-4 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4">
+                <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
                     <Link href="/" className="text-indigo-600 font-bold flex items-center gap-2 hover:text-indigo-800 transition">
                         ← Kataloğa Dön
                     </Link>
+                    {/* Sepet sayısını sağ üstte görelim */}
+                    <div className="text-sm font-bold bg-gray-100 px-3 py-1 rounded-full">
+                        🛒 Sepet: {(props as any).cartCount || 0}
+                    </div>
                 </div>
             </nav>
 
             <main className="max-w-7xl mx-auto px-4 py-12">
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-0">
-                    
-                    {/* Sol: Ürün Görseli */}
                     <div className="bg-gray-100 flex items-center justify-center p-8">
                         <img 
                             src={product.image || 'https://via.placeholder.com/600'} 
@@ -47,7 +58,6 @@ export default function ProductDetail({ product }: { product: Product }) {
                         />
                     </div>
 
-                    {/* Sağ: Ürün Bilgileri */}
                     <div className="p-12 flex flex-col justify-center">
                         <div className="mb-6">
                             <span className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-sm font-black uppercase tracking-widest">

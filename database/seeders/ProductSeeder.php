@@ -69,7 +69,7 @@ class ProductSeeder extends Seeder
             'price' => 950.00,
             'stock' => 40,
             'category' => 'Elektronik',
-            'image' => 'https://images.unsplash.com/photo-1608156639585-34a0a56ee6c9?w=500'
+            'image' => 'https://images.pexels.com/photos/1034662/pexels-photo-1034662.jpeg?auto=compress&cs=tinysrgb&w=500'
         ]);
 
         // 7. Ürün

@@ -26,4 +26,7 @@ Route::get('dashboard', function () {
     return Inertia::render('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+//Sepete eklemek için 
+Route::post('/cart/add',[App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
+
 require __DIR__.'/settings.php';
