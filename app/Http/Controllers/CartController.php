@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    // Mevcut ekleme fonksiyonun (Dokunmadık)
     public function add(Request $request)
     {
         $cart = session()->get('cart', []);

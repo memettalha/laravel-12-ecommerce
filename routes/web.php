@@ -1,39 +1,38 @@
 <?php
 
-use App\Models\Product; // Ürünleri çekmek için modelimizi ekledik
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+use App\Http\Controllers\CartController; // Buraya çektik
 
-// Ana Sayfa Rotası - Ürünleri burada listeliyoruz
+// 1. Önce tüm ana sayfayı ezecek rotaları kontrol etmek için 
+// Laravel'in önbelleğini temizlemeyi unutma.
+
 Route::get('/', function () {
-    return Inertia::render('welcome', [
-        'products' => Product::all(), // Veritabanındaki tüm ürünleri React'a gönderiyoruz
+    return Inertia::render('welcome', [ // Welcome.tsx dosyanın ismiyle birebir aynı olsun
+        'products' => Product::all(),
         'canRegister' => Features::enabled(Features::registration()),
+        'cart' => session()->get('cart', []),
     ]);
 })->name('home');
 
 // Ürün Detay Rotası 
 Route::get('/product/{id}', function ($id) {
-    $product = Product::findOrFail($id); // Ürünü bul, bulamazsan 404 ver
+    $product = Product::findOrFail($id);
     return Inertia::render('ProductDetail', [
         'product' => $product
     ]);
 })->name('product.detail');
 
-// Dashboard Rotası (Giriş yapanlar için)
+// Dashboard
 Route::get('dashboard', function () {
     return Inertia::render('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-//Sepete eklemek için 
-Route::post('/cart/add',[App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
-
-// Sepet Yönetimi: Adet güncelleme (artırma/azaltma) ve ürün silme işlemleri
+// Sepet İşlemleri
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
 
-use App\Http\Controllers\CartController;
-
-
-require __DIR__.'/settings.php';
+//require __DIR__.'/settings.php';
