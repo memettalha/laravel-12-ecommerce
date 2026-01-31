@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import CartPanel from '@/components/CartPanel';
 
@@ -12,36 +12,44 @@ interface Product {
     image: string | null;
 }
 
-// Props arayüzünü güncelledik: cart ve canRegister eklendi
 interface Props {
     products: Product[];
-    cart: Record<number, number>; // { ürün_id: adet } şeklinde bir obje
+    categories: string[];
+    filters: { category?: string };
+    cart: Record<number, number>;
     canRegister: boolean;
 }
 
-export default function Welcome({ products, cart, canRegister }: Props) {
+export default function Welcome({ products, categories, filters, cart, canRegister }: Props) {
     const [notification, setNotification] = useState<string | null>(null);
-    // Sepet panelinin açık/kapalı durumunu tutan state
     const [isCartOpen, setIsCartOpen] = useState(false);
 
-    // Sepetteki toplam ürün adedini hesapla (cart boşsa hata vermemesi için || {} ekledik)
     const totalItems = Object.values(cart || {}).reduce((acc: number, curr: number) => acc + curr, 0);
 
-    const addToCart = (productName: string) => {
-        // Not: Gerçek sepete ekleme işlemi ProductDetail sayfasındaki gibi 
-        // bir router.post isteği gerektirir. Şimdilik sadece bildirim gösteriyoruz.
-        setNotification(`${productName} sepete eklendi! 🛒`);
+    const handleFilter = (categoryName: string) => {
+        router.get('/', 
+            { category: categoryName }, 
+            { 
+                preserveScroll: true, 
+                only: ['products', 'filters'] 
+            }
+        );
+    };
 
-        setTimeout(() => {
-            setNotification(null);
-        }, 3000);
+    const addToCart = (product: Product) => {
+        // Hata veren route() yerine direkt '/cart/add' yolunu yazdım
+        router.post('/cart/add', { id: product.id }, {
+            onSuccess: () => {
+                setNotification(`${product.name} sepete eklendi! 🛒`);
+                setTimeout(() => setNotification(null), 3000);
+            }
+        });
     };
   
     return (
         <>
             <Head title="Ürün Kataloğu" />
             
-            {/* Bildirim */}
             {notification && (
                 <div className="fixed top-20 right-5 z-[100] animate-bounce">
                     <div className="bg-green-600 text-white px-6 py-3 rounded-2xl shadow-2xl font-bold flex items-center gap-2">
@@ -51,16 +59,13 @@ export default function Welcome({ products, cart, canRegister }: Props) {
             )}
 
             <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-                {/* Navbar Bölümü */}
                 <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16">
-                            {/* Logo */}
                             <div className="text-2xl font-black text-indigo-600 tracking-tighter">
                                 MODERN<span className="text-gray-900">SHOP</span>
                             </div>
 
-                            {/* Sağ Taraf: Üye Ol & Sepet */}
                             <div className="flex items-center gap-6">
                                 {canRegister && (
                                     <Link href="/register" className="text-sm font-medium text-gray-600 hover:text-indigo-600 transition">
@@ -68,7 +73,6 @@ export default function Welcome({ products, cart, canRegister }: Props) {
                                     </Link>
                                 )}
                                 
-                                {/* ÖZELLEŞTİRİLMİŞ SEPET BUTONU */}
                                 <button 
                                     onClick={() => setIsCartOpen(true)}
                                     className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all group"
@@ -92,9 +96,33 @@ export default function Welcome({ products, cart, canRegister }: Props) {
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
                         Harika Ürünler, <span className="text-indigo-600">Uygun Fiyatlar</span>
                     </h1>
-                    <p className="text-gray-600 max-w-xl mx-auto text-lg">
-                        Laravel 12 ve React'ın gücüyle tasarlanmış özel kataloğumuzu keşfedin.
-                    </p>
+                    
+                    <div className="flex flex-wrap justify-center gap-3 mt-8">
+                        <button
+                            onClick={() => handleFilter('all')}
+                            className={`px-5 py-2 rounded-full font-bold transition-all ${
+                                !filters.category || filters.category === 'all'
+                                ? 'bg-indigo-600 text-white shadow-md scale-105'
+                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                            }`}
+                        >
+                            Hepsi
+                        </button>
+
+                        {categories.map((cat) => (
+                            <button
+                                key={cat}
+                                onClick={() => handleFilter(cat)}
+                                className={`px-5 py-2 rounded-full font-bold transition-all ${
+                                    filters.category === cat
+                                    ? 'bg-indigo-600 text-white shadow-md scale-105'
+                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
                 </header>
 
                 <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
@@ -126,7 +154,7 @@ export default function Welcome({ products, cart, canRegister }: Props) {
                                     <div className="flex items-center justify-between">
                                         <span className="text-2xl font-black text-gray-900">{product.price} TL</span>
                                         <button
-                                            onClick={() => addToCart(product.name)}
+                                            onClick={() => addToCart(product)}
                                             className="bg-gray-900 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-indigo-600 transition-colors shadow-lg active:scale-95">
                                             Sepete Ekle
                                         </button>
@@ -137,7 +165,6 @@ export default function Welcome({ products, cart, canRegister }: Props) {
                     </div>
                 </main>
 
-                {/* SEPET PANELİ BİLEŞENİ */}
                 <CartPanel 
                     isOpen={isCartOpen} 
                     onClose={() => setIsCartOpen(false)} 
